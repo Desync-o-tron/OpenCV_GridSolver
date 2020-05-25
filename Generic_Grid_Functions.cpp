@@ -1,4 +1,3 @@
-//whey n lu
 #include "stdafx.h"
 #include "Generic_Grid_Functions.h"
 
@@ -14,8 +13,8 @@ void gridErrorChecking2(vector <RectStats> & gridNums)
 
     vector<int> numsNotPresent;
 
-    for (int i = 0; i < 9; i++)
-        numsNotPresent.push_back(i + 1);
+    for (int i = 1; i < 10; i++)
+        numsNotPresent.push_back(i);
     for (int i = 0; i < 9; i++)
         numsNotPresent.erase(remove(numsNotPresent.begin(), numsNotPresent.end(), gridNums[i].guessedNum), numsNotPresent.end());
 
@@ -51,27 +50,37 @@ void gridErrorChecking2(vector <RectStats> & gridNums)
     sort(duplicateGridNums.begin(), duplicateGridNums.end(),
         [](RectStats const& a, RectStats const& b) { return a.confidences[0] > b.confidences[0]; });
 
-    cout << "all duplicates\n";
+    cout << "duplicates, confidence\n";
     for (int i = 0; i < duplicateGridNums.size(); i++)
-        cout << duplicateGridNums[i].guessedNum << " ";
+        cout << duplicateGridNums[i].guessedNum << ", " << duplicateGridNums[i].confidences[0] << endl;
     cout << endl;
 
+    // find all the numbers of each subset with the highest confidence.
+    // aka which numbers come first in the set & delete them from duplicate grid numbers 
+    //int prevNum = -1;
+    //for (int i = 0; i < duplicateGridNums.size();)
+    //{
+    //    bool iterate = false;
+    //    if (prevNum != duplicateGridNums[i].guessedNum)
+    //        duplicateGridNums.erase(duplicateGridNums.begin() + i);
+    //    else
+    //        iterate = true;
+
+    //    prevNum = duplicateGridNums[i].guessedNum;
+
+    //    if (iterate)
+    //        ++i;
+    //}
     // find all the numbers of each subset with the highest confidence.
     // aka which numbers come first in the set & delete them from duplicate grid numbers 
     int prevNum = -1;
     for (int i = 0; i < duplicateGridNums.size();)
     {
-        bool iterate = false;
         if (prevNum != duplicateGridNums[i].guessedNum) {
             duplicateGridNums.erase(duplicateGridNums.begin() + i);
+            continue;
         }
-        else
-            iterate = true;
-
-        prevNum = duplicateGridNums[i].guessedNum;
-
-        if (iterate)
-            ++i;
+        i++;
     }
 
     cout << "weeded out duplicates\n";
@@ -80,6 +89,7 @@ void gridErrorChecking2(vector <RectStats> & gridNums)
     cout << endl;
 
     // take the things with the highest confidence and match them with the numbers not present
+    //TODO comment is gay
     for (int i = 0; i < duplicateGridNums.size(); i++) {
         int greatestConfidence = -1;
 
