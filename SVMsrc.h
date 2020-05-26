@@ -1,5 +1,5 @@
 #pragma once
-
+#include "stdafx.h"
 #include <iostream>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
@@ -8,8 +8,6 @@
 #include <opencv2/opencv.hpp>
 
 using namespace cv::ml;
-using namespace cv;
-using namespace std;
 
 //for DJI dataset
 /*

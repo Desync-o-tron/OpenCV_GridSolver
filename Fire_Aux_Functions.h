@@ -1,7 +1,6 @@
 #pragma once
+#include "stdafx.h"
 #include "Generic_Grid_Functions.h"
 
-using namespace cv;
-using namespace std;
-
-void loadComparisonImages(vector <Mat> & nums, bool BGR2GRAY_BOOL);
+bool massageImg(Mat& inFrame, Mat& outFrame);
+bool contours2boundingRects(vector <vector<Point>>& contours, float imgArea, vector <RectStats>& rects);

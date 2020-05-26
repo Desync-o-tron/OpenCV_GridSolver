@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "FireGridMain.hpp"
+
 void FireGridMain(Mat & frame, vector<Mat> & testImgs, vector<int> & returnGrid, bool & readyToFire)
 {
-    if (frame.empty() )
+    if (frame.empty())
     {
         cout << "\nFRAME EMPTY\n";
         return;
@@ -13,57 +14,21 @@ void FireGridMain(Mat & frame, vector<Mat> & testImgs, vector<int> & returnGrid,
         return;
     }
 
-
-
     static int success = 0;
     static int numSuccessFrames = 3;
 
     static vector <int> lastValidGuessedNums(9);
     static int numberOfValidConsecutiveFrames = 0;
-    //static bool FIRE_NOW = false;
-
-    Mat frame2 = frame.clone();
-    cvtColor(frame2, frame2, COLOR_BGR2GRAY);
-
-    //blurring action
-    Mat element = getStructuringElement(MORPH_RECT,Size(4, 4),Point(0, 0));
-    dilate(frame2, frame2, element);
-    dilate(frame2, frame2, element);
-    element = getStructuringElement(MORPH_RECT,Size(7, 7),Point(0, 0));
-    erode(frame2, frame2, element);
-
-    threshold(frame2, frame2, 60, 255, THRESH_BINARY);
-
+    
+    Mat filteredFrame;
     vector <vector <Point>> contours;
-    findContours(frame2, contours, RETR_LIST, CHAIN_APPROX_TC89_L1);
-    //TODO check if contour apprx algo can be changed for speed
-
-    Rect roi;
     vector <RectStats> rects;
-
-    for (int i = 0; i < contours.size(); i++)
-    {
-        float area = (float)(contourArea(contours[i]));
-
-        if (area > frame.cols*frame.rows*0.00054 && area < frame.cols*frame.rows*0.03)
-        {
-            RectStats RS;
-            Rect roi = boundingRect(contours[i]);
-            RS.roi = roi;
-
-            if (roi.height > roi.width*0.62)
-            {
-               // if(roi.height >= 8 && roi.width >= 8 &&
-               // roi.x > 0 && roi.x < frame.cols &&
-               // roi.y > 0 && roi.y < frame.rows)
-
-                rects.push_back(RS);
-
-            }
-
-        }
-    } //end sorting by area and dimension ratio
-
+    float imgArea = frame.cols * frame.rows;
+    
+    //TODO check if contour apprx algo can be changed for speed if you want this to run on a pi
+    massageImg(frame, filteredFrame);
+    findContours(filteredFrame, contours, RETR_LIST, CHAIN_APPROX_TC89_L1);
+    contours2boundingRects(contours, imgArea, rects);
 
     //----------start adjacency algo ------------------------------------------
 
@@ -333,6 +298,6 @@ void FireGridMain(Mat & frame, vector<Mat> & testImgs, vector<int> & returnGrid,
     }
 
     namedWindow("after process");
-    imshow("after process", frame);
+    imshow("filteredframe", filteredFrame);//
     waitKey(30);
 }

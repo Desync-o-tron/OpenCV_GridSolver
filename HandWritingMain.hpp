@@ -1,12 +1,12 @@
 #pragma once
+#include "stdafx.h"
 #include "SVMsrc.h"
-#include "Handwriting_Grid_Aux_Functions.h"
+#include "Handwriting_Aux_Functions.h"
 #include "Generic_Grid_Functions.h"
 
-using namespace cv;
-using namespace std;
 
 //same as fire RectStats but with a img attched
+//TODO just inherit
 struct HWRectStats 
 {
     Rect roi;

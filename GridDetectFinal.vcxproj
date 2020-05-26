@@ -152,20 +152,17 @@
     <ClInclude Include="HandWritingMain.hpp" />
     <ClInclude Include="Fire_Aux_Functions.h" />
     <ClInclude Include="Generic_Grid_Functions.h" />
-    <ClInclude Include="Handwriting_Grid_Aux_Functions.h" />
-    <ClInclude Include="LED_Functions.h" />
+    <ClInclude Include="Handwriting_Aux_Functions.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SVMsrc.h" />
-    <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FireGridMain.cpp" />
     <ClCompile Include="Fire_Aux_Functions.cpp" />
     <ClCompile Include="Generic_Grid_Functions.cpp" />
     <ClCompile Include="GridDetectFinal.cpp" />
-    <ClCompile Include="Handwriting_Grid_Aux_Functions.cpp" />
-    <ClCompile Include="LED_Functions.cpp" />
+    <ClCompile Include="Handwriting_Aux_Functions.cpp" />
     <ClCompile Include="HandWritingMain.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
