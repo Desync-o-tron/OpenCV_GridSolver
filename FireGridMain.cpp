@@ -23,109 +23,16 @@ void FireGridMain(Mat & frame, vector<Mat> & testImgs, vector<int> & returnGrid,
     Mat filteredFrame;
     vector <vector <Point>> contours;
     vector <RectStats> rects;
-    float imgArea = frame.cols * frame.rows;
     
     //TODO check if contour apprx algo can be changed for speed if you want this to run on a pi
     massageImg(frame, filteredFrame);
     findContours(filteredFrame, contours, RETR_LIST, CHAIN_APPROX_TC89_L1);
-    contours2boundingRects(contours, imgArea, rects);
-
-    //----------start adjacency algo ------------------------------------------
-
-    for (int i = 0; i < rects.size(); i++)
-    {
-        rects[i].horizConfs = 0;
-        rects[i].vertConfs = 0;
-    }
-
-    float areaTolMult = 1.65; //1.50 too small
-    float closeTolMult = 0.5;
-
-    int horizTol_dstToNeigh = frame.cols*0.25;
-    int vertTol_dstToNeigh = frame.rows*0.20;
-
-    for (int i = 0; i < rects.size(); i++)
-    {
-        //to check if the rectangles are in the same col or row
-        int horizTol_inCol = rects[i].roi.width*closeTolMult;
-        int vertTol_inRow = rects[i].roi.height*closeTolMult;
-
-        for (int j = 0; j < rects.size(); j++)
-        {
-            if (j != i)
-            {
-                Rect roiUp;
-                roiUp.height = vertTol_dstToNeigh;
-                roiUp.width = horizTol_inCol*2;
-                roiUp.y = rects[i].roi.y - roiUp.height;
-                roiUp.x = rects[i].roi.x - roiUp.width / 2.0;
-                //rectangle(frame, roiUp, Scalar(200, 0, 200));
-
-                Rect roiDown;
-                roiDown.height = vertTol_dstToNeigh;
-                roiDown.width = horizTol_inCol * 2;
-                roiDown.y = rects[i].roi.y;// +roiDown.height;
-                roiDown.x = rects[i].roi.x - roiDown.width / 2.0;
-                //rectangle(frame, roiDown, Scalar(150, 0, 250));
-
-                Rect roiLeft;
-                roiLeft.height = vertTol_inRow * 2;
-                roiLeft.width = horizTol_dstToNeigh;
-                roiLeft.y = rects[i].roi.y - roiLeft.height / 2.0;
-                roiLeft.x = rects[i].roi.x - roiLeft.width;
-                //rectangle(frame, roiLeft, Scalar(150, 0, 250));
-
-                Rect roiRight;
-                roiRight.height = vertTol_inRow * 2;
-                roiRight.width = horizTol_dstToNeigh;
-                roiRight.y = rects[i].roi.y - roiRight.height / 2.0;
-                roiRight.x = rects[i].roi.x;// roiRight.width;
-                //rectangle(frame, roiRight, Scalar(150, 0, 250));
-
-                if (rects[i].Area() / areaTolMult <= rects[j].Area() && rects[j].Area() <= rects[i].Area()*areaTolMult)
-                {
-                    if (roiUp.contains(Point(rects[j].X(), rects[j].Y())))
-                        rects[i].vertConfs++;
-
-                    if (roiDown.contains(Point(rects[j].X(), rects[j].Y()))) //else's?
-                        rects[i].vertConfs++;
-
-                    if (roiLeft.contains(Point(rects[j].X(), rects[j].Y())))
-                        rects[i].horizConfs++;
-
-                    if (roiRight.contains(Point(rects[j].X(), rects[j].Y())))
-                        rects[i].horizConfs++;
-                }
-            }
-        }
-    }
-
-    for (int i = 0; i < rects.size();)
-    {
-        if (!rects[i].Valid())
-            rects.erase(rects.begin() + i);
-        else
-            i++;
-    }
-    //---------------------- end adjacnency algo ------------------------------------------
-
-
+    contours2boundingRects(contours, frame, rects);
+    
     //------- get rid of bad rectangles that made it this far ----------
+    filterRectsByAdjacency(frame, rects);
+     deleteRectanglesNearScreenEdge(frame, rects);
 
-    //delete rectangles close to screen edge
-    for (int i = 0; i < rects.size();)
-    {
-        if (rects[i].X() < 15)
-            rects.erase(rects.begin() + i);
-        else if (rects[i].X() > frame.cols - rects[i].roi.width - 15)
-            rects.erase(rects.begin() + i);
-        else if (rects[i].Y() < 15)
-            rects.erase(rects.begin() + i);
-        else if (rects[i].Y() > frame.rows - rects[i].roi.height - 15)
-            rects.erase(rects.begin() + i);
-        else
-            i++;
-    }
 
     // TODO improve me
     while (rects.size() > 9)
