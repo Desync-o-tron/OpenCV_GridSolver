@@ -15,7 +15,7 @@ void FireGridMain(Mat & frame, vector<Mat> & testImgs, vector<int> & returnGrid,
     }
 
     static int success = 0;
-    static int numSuccessFrames = 3;
+    static const int minValidFrames = 3;
 
     static vector <int> lastValidGuessedNums(9);
     static int numberOfValidConsecutiveFrames = 0;
@@ -28,63 +28,18 @@ void FireGridMain(Mat & frame, vector<Mat> & testImgs, vector<int> & returnGrid,
     massageImg(frame, filteredFrame);
     findContours(filteredFrame, contours, RETR_LIST, CHAIN_APPROX_TC89_L1);
     contours2boundingRects(contours, frame, rects);
-    
+
     //------- get rid of bad rectangles that made it this far ----------
     filterRectsByAdjacency(frame, rects);
-     deleteRectanglesNearScreenEdge(frame, rects);
-
-
-    // TODO improve me
-    while (rects.size() > 9)
-    {
-        //  delete smallest rectangles
-        sort(rects.begin(), rects.end(),
-            [](RectStats const& a, RectStats const& b) { return (a.roi.height*a.roi.width) < (b.roi.height*b.roi.width); });
-        rects.erase(rects.begin() + 0);
-
-    }
+    deleteRectanglesNearScreenEdge(frame, rects);
+    if (deleteSmallestTargets(rects) == false) //you could delete by largest diff from mean as well.
+        return; //too many bad targets
     // ---------------- end deleting bad rectangles ---------------------------/>
 
-    // ----- organize grid pos 1 - 9 -----
-    if (rects.size() == 9)
-    {
 
-        sort(rects.begin(), rects.end(),
-            [](RectStats const& a, RectStats const& b) { return a.roi.y < b.roi.y; });
+    orderRectsByPos(rects);
 
-        vector <RectStats> organizedRects;
-
-        for(int a = 0; a < 3; a++)
-        {
-            vector< RectStats> row;
-            for (int i = 0; i < 3; i++)
-            {
-                row.push_back(rects[0]);
-                rects.erase(rects.begin() + 0);
-            }
-
-            sort(row.begin(), row.end(),
-                [](RectStats const& a, RectStats const& b) { return a.roi.x < b.roi.x; });
-
-            for (int i = 0; i < 3; i++)
-                organizedRects.push_back(row[i]);
-        }
-
-        rects = organizedRects;
-        for (int i = 0; i < 9; i++)
-            rects[i].gridPos = i + 1;
-    }
-    else
-    {
-        for (int p = 0; p < rects.size(); p++)
-        {
-          rects[p].gridPos = 0;
-          rects[p].guessedNum = 0;
-        }
-    }
-    //------- end grid organization -------------
-
-    if (rects.size() == 9)
+    if (rects.size() == 9) // hmmm..
     {
         success++;
     }
@@ -94,97 +49,20 @@ void FireGridMain(Mat & frame, vector<Mat> & testImgs, vector<int> & returnGrid,
     }
 
 
-    // --------------------------- match template ---------------------------
-    if (success >= numSuccessFrames)
+    if (success >= minValidFrames)
     {
-        for (int x = 0; x < rects.size(); x++)
-        {
-            //TODO lower these to improve accuracy?
-            Rect roi_larger = rects[x].roi;
-            roi_larger.x -= 5;
-            roi_larger.y -= 5;
-            roi_larger.height += 10;
-            roi_larger.width += 10;
-
-            Mat unknownImg;
-            unknownImg = frame(roi_larger);
-
-            vector < Mat> comparisonResults(9);
-
-            for (int i = 0; i < 9; i++)
-            {
-                Mat testImgResize;
-
-                if(rects[x].roi.height <= 0 || rects[x].roi.width <=0)
-                {
-                    cout << "bad rectangle" << endl << rects[x].roi.height << " " << rects[x].roi.width << endl;
-                    return;
-                }
-
-                resize(testImgs[i], testImgResize, rects[x].roi.size());
-
-                matchTemplate(unknownImg, testImgResize, comparisonResults[i], TM_CCOEFF_NORMED);
-                //TODO make sure this cant crash & that CCOEFF provides the best results
-                //for optimization, you could implement two match templates, & lower the resolution.
-            }
-
-            double min, max;
-            double vectorMax = -1;
-            int pos = -1;
-
-            for (int i = 0; i < 9; i++)
-            {
-                minMaxLoc(comparisonResults[i], &min, &max);
-
-                if (vectorMax < max) {
-                    vectorMax = max;
-                    pos = i;
-                }
-                rects[x].confidences.push_back(max);
-            }
-            rects[x].guessedNum = pos + 1;
-        }
-        gridErrorChecking2(rects);
+        guessNumbers(frame, rects, testImgs);
+        gridErrorChecking2(rects); //TODO improve me
     }
     // --------------- finish number recognition -----------------/>
-
-
-    if(rects.size() == 9)
-    {
-        bool checkIfEqual = true;
-        for (int i = 0; i < 9; i++)
-        {
-            if (lastValidGuessedNums[i] != rects[i].guessedNum || lastValidGuessedNums[i] == 0)
-                checkIfEqual = false;
-        }
-
-        if (checkIfEqual)
-            numberOfValidConsecutiveFrames++;
-        else
-            numberOfValidConsecutiveFrames = 0;
-
-        for (int i = 0; i < 9; i++)
-        {
-            lastValidGuessedNums[i] = rects[i].guessedNum;
-            returnGrid[i] = rects[i].guessedNum;
-        }
-    }
-    else
-        numberOfValidConsecutiveFrames = 0;
-
-
-    if(numberOfValidConsecutiveFrames >= 3)
-        readyToFire = true;
-    else
-        readyToFire = false;
-
+    readyToFire = getTargetLock(rects, lastValidGuessedNums, returnGrid, numberOfValidConsecutiveFrames);
 
     // ----------------draw rects ------------
     for (int i = 0; i < rects.size(); i++)
     {
-        rectangle(frame, rects[i].roi, Scalar(255, 255,0), 2);
+        rectangle(frame, rects[i].roi, Scalar(255,255,0), 2);
 
-        if (success >= numSuccessFrames)
+        if (success >= minValidFrames)
         {
             string guessedNum = to_string(rects[i].guessedNum);
             putText(frame, guessedNum, Point(rects[i].X() + rects[i].roi.width, rects[i].Y() + 35), FONT_HERSHEY_DUPLEX, 1.5, Scalar(230, 0, 255), 2);
@@ -193,7 +71,7 @@ void FireGridMain(Mat & frame, vector<Mat> & testImgs, vector<int> & returnGrid,
         {
             rectangle(frame, rects[i].roi, Scalar(55, 55, 255), 3);
             //if( rects[i].guessedNum == targetNum)
-            //    putText(frame, "FIRE NOW", Point(rects[i].X() + rects[i].roi.width, rects[i].Y() + 35), FONT_HERSHEY_DUPLEX, 1.5, Scalar(230, 0, 255), 2);
+            //  putText(frame, "FIRE NOW", Point(rects[i].X() + rects[i].roi.width, rects[i].Y() + 35), FONT_HERSHEY_DUPLEX, 1.5, Scalar(230, 0, 255), 2);
         }
 
         /*

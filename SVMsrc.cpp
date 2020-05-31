@@ -171,6 +171,7 @@ HOGDescriptor hog(
     0,//gammal correction,
     64,//nlevels=64
     1);
+
 void CreateTrainTestHOG(vector<vector<float> > &trainHOG, vector<vector<float> > &testHOG, vector<Mat> &deskewedtrainCells, vector<Mat> &deskewedtestCells) {
 
     for (int y = 0; y<deskewedtrainCells.size(); y++) {

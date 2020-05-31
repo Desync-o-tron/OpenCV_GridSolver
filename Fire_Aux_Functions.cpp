@@ -139,10 +139,22 @@ bool deleteSmallestTargets(vector <RectStats>& rects) {
         //  delete smallest rectangles
         sort(rects.begin(), rects.end(),
             [](RectStats const& a, RectStats const& b) { return (a.roi.height * a.roi.width) < (b.roi.height * b.roi.width); });
-        rects.erase(rects.begin() + 0);
+        rects.erase(rects.begin());
 
     }
-    return true;
+    
+    if (rects.begin()->roi.height <= 0 || rects.begin()->roi.width <= 0)
+        return false;
+    else
+        return true;
+
+    //if (rects[x].roi.height <= 0 || rects[x].roi.width <= 0)
+    //{
+    //    success--;
+    //    return;
+    //}
+
+    //return true;
 }
 
 
@@ -187,4 +199,85 @@ bool orderRectsByPos(vector <RectStats>& rects) {
     //    }
     //}
     return false;
+}
+
+
+bool guessNumbers(Mat& frame, vector <RectStats>& rects, vector<Mat>& testImgs) 
+{
+    // --------------------------- match template ---------------------------
+    for (int x = 0; x < 9; x++)
+    {
+        Mat unknownImg;
+        vector <Mat> comparisonResults(9); //heatmaps
+
+        //TODO lower these to improve accuracy?
+        //enlarge bounding box
+        Rect larger_roi = rects[x].roi;
+        int pixelIncrease = 10;
+        larger_roi.x -= pixelIncrease/2;
+        larger_roi.y -= pixelIncrease/2;
+        larger_roi.height += pixelIncrease;
+        larger_roi.width += pixelIncrease;
+        unknownImg = frame(larger_roi);
+
+        for (int i = 0; i < 9; i++)
+        {
+            Mat testImgResized;
+            resize(testImgs[i], testImgResized, rects[x].roi.size());
+            matchTemplate(unknownImg, testImgResized, comparisonResults[i], TM_CCOEFF_NORMED);
+            //TODO make sure this cant crash & that CCOEFF provides the best results
+            //for optimization, you could implement two match templates, & lower the resolution.
+        }
+
+        double min, max;
+        double maxAcrossImgs = -1;
+        int hottestPointIndex = -1;
+        //for each heatmap, find the max
+        //find the hottest point among all maps
+        for (int i = 0; i < 9; i++)
+        {
+            minMaxLoc(comparisonResults[i], &min, &max);
+
+            if (maxAcrossImgs < max) {
+                maxAcrossImgs = max;
+                hottestPointIndex = i;
+            }
+            rects[x].confidences.push_back(max);
+        }
+        rects[x].guessedNum = hottestPointIndex + 1;
+    }
+    return true;
+}
+
+
+bool getTargetLock(vector<RectStats>& rects, vector<int> & lastValidGuessedNums, vector<int>& returnGrid, int & numberOfValidConsecutiveFrames)
+{
+    if (rects.size() == 9)
+    {
+        bool lastRecsAreTheSame = true;
+        for (int i = 0; i < 9; i++)
+        {
+            if (lastValidGuessedNums[i] != rects[i].guessedNum || lastValidGuessedNums[i] == 0)
+                lastRecsAreTheSame = false;
+        }
+
+        if (lastRecsAreTheSame)
+            numberOfValidConsecutiveFrames++;
+        else
+            numberOfValidConsecutiveFrames = 0;
+
+        for (int i = 0; i < 9; i++)
+        {
+            lastValidGuessedNums[i] = rects[i].guessedNum;
+            returnGrid[i] = rects[i].guessedNum;
+        }
+    }
+    else { 
+        numberOfValidConsecutiveFrames = 0; 
+    }
+        
+    if (numberOfValidConsecutiveFrames >= 3)
+        return true;
+    else
+        return false;
 }
