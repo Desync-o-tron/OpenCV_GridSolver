@@ -132,6 +132,29 @@ void gridErrorChecking2(vector <RectStats> & gridNums)
 
 }
 
+void traceTargetOverlay(Mat& frame, vector <RectStats>& rects, int numValidFrames, int readyToFire, int minValidFrames) {
+    // ----------------draw rects ------------
+    for (int i = 0; i < rects.size(); i++)
+    {
+        rectangle(frame, rects[i].roi, Scalar(255, 255, 0), 2);
+
+        if (numValidFrames >= minValidFrames)
+        {
+            string guessedNum = to_string(rects[i].guessedNum);
+            putText(frame, guessedNum, Point(rects[i].X() + rects[i].roi.width, rects[i].Y() + 35), FONT_HERSHEY_DUPLEX, 1.5, Scalar(230, 0, 255), 2);
+        }
+        if (readyToFire){
+            rectangle(frame, rects[i].roi, Scalar(55, 55, 255), 3);
+        }
+        /*
+        //Diagnostics for rect to rect target proximity comparsions
+        string vertConfs = "" + to_string(rects[i].vertConfs);
+        string horizConfs= "" + to_string(rects[i].horizConfs);
+        putText(frame, vertConfs, Point(rects[i].X(), rects[i].Y() + 14), FONT_HERSHEY_PLAIN, 1, Scalar(10, 0, 255),2);
+        putText(frame, horizConfs, Point(rects[i].X(), rects[i].Y() + 30), FONT_HERSHEY_PLAIN, 1, Scalar(10, 0, 255),2);
+        */
+    }
+}
 
 
 // for handwriting

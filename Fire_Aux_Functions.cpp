@@ -133,28 +133,22 @@ bool deleteRectanglesNearScreenEdge(Mat& frame, vector <RectStats>& rects) {
 
 
 bool deleteSmallestTargets(vector <RectStats>& rects) {
-    // TODO improve me?
-    while (rects.size() > 9)
-    {
-        //  delete smallest rectangles
-        sort(rects.begin(), rects.end(),
-            [](RectStats const& a, RectStats const& b) { return (a.roi.height * a.roi.width) < (b.roi.height * b.roi.width); });
-        rects.erase(rects.begin());
+    
+    sort(rects.begin(), rects.end(),
+        [](RectStats const& a, RectStats const& b) { return (a.roi.height * a.roi.width) < (b.roi.height * b.roi.width); });
 
+    while (rects.size() > 9) {
+        rects.erase(rects.begin());
     }
     
+    return true;
+}
+
+bool smallestTargetIsValid(vector <RectStats>& rects) {
     if (rects.begin()->roi.height <= 0 || rects.begin()->roi.width <= 0)
         return false;
     else
         return true;
-
-    //if (rects[x].roi.height <= 0 || rects[x].roi.width <= 0)
-    //{
-    //    success--;
-    //    return;
-    //}
-
-    //return true;
 }
 
 

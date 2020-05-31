@@ -31,6 +31,7 @@ struct gridNum
     vector <float> confidence; //from 0 to 1 i think, 0 to 8 corresp. w/ grid number
 };
 
+void traceTargetOverlay(Mat& frame, vector<RectStats>& rects, int numValidFrames, int readyToFire, int minValidFrames);
 void gridErrorChecking2(vector <RectStats> & gridNums); //TODO get rid of one
 void gridErrorChecking(vector <gridNum> & gridNums, bool confidence);
 
