@@ -113,20 +113,78 @@ bool filterRectsByAdjacency(Mat & frame, vector <RectStats> & rects) {
 
 
 bool deleteRectanglesNearScreenEdge(Mat& frame, vector <RectStats>& rects) {
-    //TODO weights
-    throw(1);
+
+    int const pixelsFromEdge = 15;
     for (int i = 0; i < rects.size();)
     {
-        if (rects[i].X() < 15)
+        if (rects[i].X() < pixelsFromEdge)
             rects.erase(rects.begin() + i);
-        else if (rects[i].X() > frame.cols - rects[i].roi.width - 15)
+        else if (rects[i].X() > frame.cols - rects[i].roi.width - pixelsFromEdge)
             rects.erase(rects.begin() + i);
-        else if (rects[i].Y() < 15)
+        else if (rects[i].Y() < pixelsFromEdge)
             rects.erase(rects.begin() + i);
-        else if (rects[i].Y() > frame.rows - rects[i].roi.height - 15)
+        else if (rects[i].Y() > frame.rows - rects[i].roi.height - pixelsFromEdge)
             rects.erase(rects.begin() + i);
         else
             i++;
     }
     return true;
+}
+
+
+bool deleteSmallestTargets(vector <RectStats>& rects) {
+    // TODO improve me?
+    while (rects.size() > 9)
+    {
+        //  delete smallest rectangles
+        sort(rects.begin(), rects.end(),
+            [](RectStats const& a, RectStats const& b) { return (a.roi.height * a.roi.width) < (b.roi.height * b.roi.width); });
+        rects.erase(rects.begin() + 0);
+
+    }
+    return true;
+}
+
+
+bool orderRectsByPos(vector <RectStats>& rects) {
+    // ----- organize grid pos 1 - 9 -----
+    if (rects.size() == 9)
+    {
+
+        sort(rects.begin(), rects.end(),
+            [](RectStats const& a, RectStats const& b) { return a.roi.y < b.roi.y; });
+
+        vector <RectStats> organizedRects;
+
+        for (int a = 0; a < 3; a++)
+        {
+            vector< RectStats> row;
+            for (int i = 0; i < 3; i++)
+            {
+                row.push_back(rects[0]);
+                rects.erase(rects.begin() + 0);
+            }
+
+            sort(row.begin(), row.end(),
+                [](RectStats const& a, RectStats const& b) { return a.roi.x < b.roi.x; });
+
+            for (int i = 0; i < 3; i++)
+                organizedRects.push_back(row[i]);
+        }
+
+        rects = organizedRects;
+        for (int i = 0; i < 9; i++)
+            rects[i].gridPos = i + 1;
+
+        return true;
+    }
+    //else
+    //{
+    //    for (int p = 0; p < rects.size(); p++)
+    //    {
+    //        rects[p].gridPos = 0;
+    //        rects[p].guessedNum = 0;
+    //    }
+    //}
+    return false;
 }
