@@ -1,6 +1,24 @@
 #include "stdafx.h"
 #include "Generic_Grid_Functions.h"
 
+
+vector<vector<int>> generateGridGuesses(const vector<vector<int>> inputSets, const vector<int> positions) {
+	int depth = inputSets[0].size() - 1;
+	vector<vector<int>> outputPossibilities{};
+	
+	if (positions.back() == depth) {
+		return outputPossibilities;
+	}
+	vector<int> possibleOutput{};
+	for (int i = 0; i < inputSets.size(); i++)
+		possibleOutput.append(inputSets[i][positions[i]]);
+
+
+
+	//outputPossibilities.insert({inputSets[pos]
+
+}
+
 void gridErrorChecking2(vector <RectStats> & gridNums)
 {
     /*
