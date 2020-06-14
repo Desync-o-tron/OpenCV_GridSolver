@@ -21,22 +21,16 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SVMsrc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Fire_Aux_Functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Generic_Grid_Functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HandWritingMain.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="FireGridMain.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Handwriting_Aux_Functions.h">
+    <ClInclude Include="ErrorChecking.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -47,22 +41,16 @@
     <ClCompile Include="GridDetectFinal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SVMsrc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Fire_Aux_Functions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Generic_Grid_Functions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HandWritingMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FireGridMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Handwriting_Aux_Functions.cpp">
+    <ClCompile Include="Fire_Aux_Functions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ErrorChecking.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -196,7 +196,7 @@ bool orderRectsByPos(vector <RectStats>& rects) {
 }
 
 
-bool guessNumbers(Mat& frame, vector <RectStats>& rects, vector<Mat>& testImgs) 
+bool guessNumbers(Mat& frame, vector <RectStats>& rects, const vector<Mat>& testImgs) 
 {
     // --------------------------- match template ---------------------------
     for (int x = 0; x < 9; x++)

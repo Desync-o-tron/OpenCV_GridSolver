@@ -32,7 +32,6 @@ struct gridNum
 };
 
 void traceTargetOverlay(Mat& frame, vector<RectStats>& rects, int numValidFrames, int readyToFire, int minValidFrames);
-void gridErrorChecking2(vector <RectStats> & gridNums); //TODO get rid of one
-void gridErrorChecking(vector <gridNum> & gridNums, bool confidence);
-
-bool display_Img(Mat frame);
+bool displayImg(Mat frame);
+//void gridErrorChecking2(vector <RectStats> & gridNums); //TODO get rid of one
+//void gridErrorChecking(vector <gridNum> & gridNums, bool confidence);

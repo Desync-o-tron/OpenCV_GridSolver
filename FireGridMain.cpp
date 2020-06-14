@@ -1,18 +1,18 @@
 #include "stdafx.h"
 #include "FireGridMain.hpp"
 
-void FireGridMain(Mat & frame, vector<Mat> & testImgs, vector<int> & returnGrid, bool & readyToFire)
+void FireGridMain(Mat & frame, const vector<Mat> & testImgs, vector<int> & returnGrid, bool & readyToFire)
 {
-    if (frame.empty())
-    {
-        cout << "\nFRAME EMPTY\n";
-        return;
-    }
-    if (testImgs[0].empty())
-    {
-        cout << "\nTEST IMG EMPTY\n";
-        return;
-    }
+    //if (frame.empty())
+    //{
+    //    cout << "\nFRAME EMPTY\n";
+    //    return;
+    //}
+    //if (testImgs[0].empty())
+    //{
+    //    cout << "\nTEST IMG EMPTY\n";
+    //    return;
+    //}
 
     static int numValidFrames = 0;
     static const int minValidFrames = 3;
@@ -49,7 +49,7 @@ void FireGridMain(Mat & frame, vector<Mat> & testImgs, vector<int> & returnGrid,
     if (numValidFrames >= minValidFrames)
     {
         guessNumbers(frame, rects, testImgs);
-        gridErrorChecking2(rects); //TODO improve me
+        //gridErrorChecking2(rects); //TODO improve me
     }
     // --------------- finish number recognition -----------------/>
     readyToFire = getTargetLock(rects, lastValidGuessedNums, returnGrid, numberOfValidConsecutiveFrames);

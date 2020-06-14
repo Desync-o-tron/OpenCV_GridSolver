@@ -9,6 +9,5 @@ bool deleteRectanglesNearScreenEdge(Mat& frame, vector <RectStats>& rects);
 bool deleteSmallestTargets(vector<RectStats>& rects);
 bool smallestTargetIsValid(vector<RectStats>& rects);
 bool orderRectsByPos(vector<RectStats>& rects);
-bool guessNumbers(Mat& frame, vector <RectStats>& rects, vector<Mat>& testImgs);
+bool guessNumbers(Mat& frame, vector <RectStats>& rects, const vector<Mat>& testImgs);
 bool getTargetLock(vector<RectStats>& rects, vector<int>& lastValidGuessedNums, vector<int>& returnGrid, int& numberOfValidConsecutiveFrames); //returns true if readyToFire
-
