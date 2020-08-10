@@ -4,6 +4,7 @@ We were the only team in the international comp. to make this work.
 
 
 TODO:
+
 implement error checking func
 
 make cross plat (only working on windownsies atm)
